@@ -28,35 +28,64 @@ def load_url(session, url):
     except requests.exceptions.ConnectionError:
         result.end_at = time.monotonic()
         result.result = None
+        result.error = "ConnectionError"
+        return result
+    except requests.exceptions.ReadTimeout:
+        result.end_at = time.monotonic()
+        result.result = None
+        result.error = "ReadTimeout"
+        return result
+    except requests.exceptions.Timeout:
+        result.end_at = time.monotonic()
+        result.result = None
+        result.error = "Timeout"
         return result
 
     result.end_at = time.monotonic()
     result.result = r
+    result.error = None
 
     return result
 
 
-def connectivity_test_concurrent(urls):
+def print_top(label, results, count=5):
+    print("\n%s:" % label)
+    for i, r in enumerate(results[:count], 1):
+        print("  %d.  %.3fs  %s" % (i, r.end_at - r.start_at, r.url))
+
+
+def connectivity_test_concurrent(urls, max_workers=6):
     s = requests.Session()
-    all_results = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=40) as executor:
+    successful = []
+    failed = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_url = {executor.submit(load_url, s, url): url for url in urls}
 
         for future in concurrent.futures.as_completed(future_to_url):
             result = future.result()
-            if result.result != None:
-                print("%s,%s,%f" % (result.url, result.end_at - result.start_at, result.result.elapsed.total_seconds()))
-                all_results.append(result)
-     
-    all_times = list(map(lambda x: x.end_at - x.start_at, all_results))
-    pprint.pprint(all_times)
+            if result.error is None:
+                successful.append(result)
+            else:
+                failed.append(result)
 
-    print("sorted:")
+    total = len(successful) + len(failed)
+    print("\n=== Summary ===")
+    print("Tested: %d URLs | Successful: %d | Failed: %d" % (total, len(successful), len(failed)))
 
-    all_results_sorted = sorted(all_results, key=lambda x: x.end_at - x.start_at)
+    if successful:
+        sorted_results = sorted(successful, key=lambda x: x.end_at - x.start_at)
 
-    for result in all_results_sorted:
-            print("%s,%s" % (result.url, result.end_at - result.start_at))
+        print_top("Top 5 fastest", sorted_results)
+        print_top("Top 5 slowest", list(reversed(sorted_results)))
+
+        median_time = statistics.median([r.end_at - r.start_at for r in sorted_results])
+        median_sorted = sorted(sorted_results, key=lambda x: abs((x.end_at - x.start_at) - median_time))
+        print_top("Top 5 average (median range)", median_sorted)
+
+    if failed:
+        print("\nFailed (%d):" % len(failed))
+        for r in sorted(failed, key=lambda x: x.url):
+            print("  %-40s %s" % (r.url, r.error))
 
 
 
