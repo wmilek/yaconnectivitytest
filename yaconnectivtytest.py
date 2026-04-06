@@ -27,6 +27,8 @@ def main():
                         help='run test using the embedded list of ~375 URLs')
     parser.add_argument('--limiturl', type=int,
                         help='randomly sample N URLs from the list instead of testing all')
+    parser.add_argument('--parallel', type=int, default=6,
+                        help='number of concurrent requests (default: 6, similar to Firefox)')
 
     args = parser.parse_args()
 
@@ -40,7 +42,7 @@ def main():
     if args.limiturl:
         urls = random.sample(list(urls), args.limiturl)
 
-    connectivity.connectivity_test_concurrent(urls)
+    connectivity.connectivity_test_concurrent(urls, max_workers=args.parallel)
 
 
 if __name__ == "__main__":

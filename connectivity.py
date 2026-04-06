@@ -36,10 +36,10 @@ def load_url(session, url):
     return result
 
 
-def connectivity_test_concurrent(urls):
+def connectivity_test_concurrent(urls, max_workers=6):
     s = requests.Session()
     all_results = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=40) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_url = {executor.submit(load_url, s, url): url for url in urls}
 
         for future in concurrent.futures.as_completed(future_to_url):
