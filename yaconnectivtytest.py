@@ -15,10 +15,15 @@ def parse_csv_file(file):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(
+        description='Yet Another Connectivity Test - concurrent HTTP latency tester. '
+                    'Sends HEAD requests to a list of URLs and reports response times sorted by latency.'
+    )
 
-    parser.add_argument('--csvfile', type=open)
-    parser.add_argument('--limiturl', type=int)
+    parser.add_argument('--csvfile', type=open,
+                        help='CSV file with "popularity,domain" rows to test (domains are prefixed with http://)')
+    parser.add_argument('--limiturl', type=int,
+                        help='randomly sample N URLs from the list instead of testing all')
 
     args = parser.parse_args()
 
