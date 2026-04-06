@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import connectivity
+import database
 import random
 import argparse
 
@@ -22,6 +23,8 @@ def main():
 
     parser.add_argument('--csvfile', type=open,
                         help='CSV file with "popularity,domain" rows to test (domains are prefixed with http://)')
+    parser.add_argument('--embedded', action='store_true',
+                        help='run test using the embedded list of ~375 URLs')
     parser.add_argument('--limiturl', type=int,
                         help='randomly sample N URLs from the list instead of testing all')
 
@@ -31,9 +34,11 @@ def main():
 
     if args.csvfile:
         urls = parse_csv_file(args.csvfile)
+    elif args.embedded:
+        urls = database.ALL_URLS
 
     if args.limiturl:
-        urls = random.sample(urls, args.limiturl)
+        urls = random.sample(list(urls), args.limiturl)
 
     connectivity.connectivity_test_concurrent(urls)
 
