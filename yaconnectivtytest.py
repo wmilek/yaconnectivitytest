@@ -14,22 +14,24 @@ def parse_csv_file(file):
 
 
 
-parser = argparse.ArgumentParser(description='Process some integers.')
+def main():
+    parser = argparse.ArgumentParser(description='Process some integers.')
 
-parser.add_argument('--csvfile', type=open)
-parser.add_argument('--limiturl', type=int)
+    parser.add_argument('--csvfile', type=open)
+    parser.add_argument('--limiturl', type=int)
+
+    args = parser.parse_args()
+
+    urls=set()
+
+    if args.csvfile:
+        urls = parse_csv_file(args.csvfile)
+
+    if args.limiturl:
+        urls = random.sample(urls, args.limiturl)
+
+    connectivity.connectivity_test_concurrent(urls)
 
 
-args = parser.parse_args()
-
-urls=set()
-
-if args.csvfile:
-    urls = parse_csv_file(args.csvfile)
-
-if args.limiturl:
-    urls = random.sample(urls, args.limiturl)
-
-
-
-connectivity.connectivity_test_concurrent(urls)
+if __name__ == "__main__":
+    main()
