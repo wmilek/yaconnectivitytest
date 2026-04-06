@@ -25,7 +25,7 @@ def load_url(session, url):
     result.url = url
     try:
         r = session.head(url, timeout=30, allow_redirects=False)
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
         result.end_at = time.monotonic()
         result.result = None
         return result
