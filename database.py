@@ -27,16 +27,8 @@ URLS = {"http://google.com",
         }
 
 SPECIAL_URLS = process("""
-https://v4v6.ipv6-test.com/api/myip.php
-http://v4v6.ipv6-test.com/api/myip.php
-
-http://v4.ipv6-test.com/api/myip.php
-https://v4.ipv6-test.com/api/myip.php
-
 http://www.apple.com/library/test/success.html
 http://captive.apple.com/hotspot-detect.html
-
-http://neverssl.com
 
 http://ipv4.download.thinkbroadband.com/5MB.zip
 http://ipv4.download.thinkbroadband.com:81/5MB.zip
@@ -47,7 +39,6 @@ http://www.milek.eu.org/
 https://linkd.pl/pck2m
 https://agiofunds.pl/dokumenty/beta-etf-wig20tr/
 https://agiofunds.pl/dokumenty/komentarze/
-https://www.lyxoretf.pl/pl/retail
 """)
 
 LIBS_URLS= process("""
@@ -137,7 +128,7 @@ http://quizlet.com
 http://gamepedia.com
 http://lowes.com
 http://irs.gov
-http://nih.gov
+#http://nih.gov
 http://merriam-webster.com
 http://steampowered.com
 http://mapquest.com
@@ -171,7 +162,7 @@ http://spotify.com
 http://cdc.gov
 http://chase.com
 http://hulu.com
-http://xfinity.com
+#http://xfinity.com
 http://msn.com
 http://dictionary.com
 http://weather.com
@@ -357,7 +348,7 @@ http://sport.interia.pl
 http://aliexpress.com
 http://demotywatory.pl
 http://onnetwork.tv
-http://pikio.pl
+#http://pikio.pl
 http://ingbank.pl
 http://mediaexpert.pl
 http://joemonster.org
@@ -398,9 +389,9 @@ http://gemius.com
 http://bongacams.com
 http://kwejk.pl
 http://yahoo.com
-http://elektroda.pl
+#http://elektroda.pl
 http://brainly.pl
-http://zalukaj.com
+#http://zalukaj.com
 http://orange.pl
 http://auto-swiat.pl
 http://meteo.pl
