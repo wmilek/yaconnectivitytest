@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yaconnectivitytest"
+version = "0.1.0"
+description = "Yet Another Connectivity Test - concurrent HTTP latency tester"
+requires-python = ">=3.8"
+dependencies = [
+    "requests",
+]
+
+[project.scripts]
+yaconnectivitytest = "yaconnectivtytest:main"
+
+[tool.setuptools]
+py-modules = ["yaconnectivtytest", "connectivity", "database"]

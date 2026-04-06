@@ -21,11 +21,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Install package
+        run: pip install .
 
       - name: Verify imports
         run: python -c "import connectivity; import database; print('Imports OK')"
+
+      - name: Verify CLI entry point
+        run: yaconnectivitytest --help
 
       - name: Run connectivity test (small sample)
         run: |
