@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-yaconnectivitytest = "yaconnectivtytest:main"
+yaconnectivitytest = "yaconnectivitytest:main"
 
 [tool.setuptools]
-py-modules = ["yaconnectivtytest", "connectivity", "database"]
+py-modules = ["yaconnectivitytest", "connectivity", "database"]
