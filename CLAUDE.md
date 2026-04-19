@@ -42,6 +42,16 @@ Three top-level Python modules, all in the repo root (flat layout, no `src/` or 
 
 Control flow: CLI parses args → chooses URL source (CSV parse or `database.ALL_URLS`) → optional `random.sample` down to `--limiturl` → `connectivity.connectivity_test_concurrent` with `max_workers=--parallel` (default 6, chosen to match Firefox's per-host connection cap).
 
+### Web frontend (`web/`)
+
+A browser port of the same test, deployed to `yaconnectivitytest.surge.sh` on push to `main`.
+
+- `web/index.html`, `web/app.js`, `web/connectivity.js` — vanilla ES-module SPA. `connectivity.js` mirrors `connectivity.py`: `fetch(url, {method: 'HEAD', mode: 'no-cors', redirect: 'manual'})` timed with `performance.now()`, `runConcurrent` drives a Promise-based worker pool. Opaque responses mean status codes are unknowable — any resolved fetch is "success", reject is "failure", same as the CLI's liberal success definition.
+- `web/database.js` — **generated** from `database.py` by `scripts/generate_database_js.py`. Do not edit by hand; re-run the generator after changing the Python corpus. `database.py` stays the single source of truth.
+- `web/CNAME` — pins the Surge domain. Changing the deploy target means editing this file.
+- `.github/workflows/deploy-web.yml` — regenerates `web/database.js` then runs `npx surge ./web`. Requires repo secrets `SURGE_LOGIN` (account email) and `SURGE_TOKEN` (from `surge token`).
+- Mixed-content rule: the site **must be served over `http://`** for the browser to reach the `http://` entries in the corpus. Surge's free `*.surge.sh` subdomain is HTTP-reachable (no HSTS); that's why we're not on GitHub Pages / Netlify / Vercel, all of which force HTTPS.
+
 ## Conventions
 
 - Python 3.8+ compatibility is required (`pyproject.toml`). Avoid 3.9+-only syntax (e.g. `dict | dict`, `list[str]` at runtime) in module scope.
