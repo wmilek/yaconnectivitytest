@@ -31,6 +31,14 @@ function renderTop(label, rows) {
 
 function render(summary, elapsed) {
   const out = [];
+  out.push(`Page scheme: ${location.protocol}//${location.host}`);
+  if (location.protocol === 'https:') {
+    out.push(
+      'WARNING: page is loaded over https: — mixed-content rules will block every http:// URL.',
+    );
+    out.push('Re-open as http://' + location.host + '/ (and disable Firefox HTTPS-Only Mode for this site).');
+  }
+  out.push('');
   out.push(`=== Summary (elapsed: ${elapsed.toFixed(2)}s) ===`);
   out.push(
     `Tested: ${summary.total} | Successful: ${summary.successful.length} | Failed: ${summary.failed.length}`,
@@ -41,10 +49,20 @@ function render(summary, elapsed) {
     out.push(renderTop('Top 5 average (median range)', summary.medianRange));
   }
   if (summary.failed.length) {
-    out.push(`\nFailed (${summary.failed.length}):`);
+    const byReason = {};
+    for (const r of summary.failed) {
+      const key = r.errorMessage || r.error;
+      (byReason[key] = byReason[key] || []).push(r);
+    }
+    out.push(`\nFailed (${summary.failed.length}) — grouped by error:`);
+    for (const [reason, rows] of Object.entries(byReason)) {
+      out.push(`  [${rows.length}] ${reason}`);
+    }
+    out.push('');
     const sorted = summary.failed.slice().sort((a, b) => a.url.localeCompare(b.url));
     for (const r of sorted) {
-      out.push(`  ${r.url.padEnd(48)} ${r.error}`);
+      const msg = r.errorMessage ? `${r.error}: ${r.errorMessage}` : r.error;
+      out.push(`  ${r.url.padEnd(48)} ${msg}`);
     }
   }
   return out.join('\n');

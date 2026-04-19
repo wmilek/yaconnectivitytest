@@ -24,7 +24,7 @@ export async function loadUrl(url, timeoutMs = DEFAULT_TIMEOUT_MS) {
   } catch (e) {
     const endAt = performance.now();
     const error = e.name === 'AbortError' ? 'Timeout' : 'NetworkError';
-    return { url, startAt, endAt, error };
+    return { url, startAt, endAt, error, errorMessage: e.message || String(e) };
   } finally {
     clearTimeout(timer);
   }
