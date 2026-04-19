@@ -407,19 +407,40 @@ ALL_URLS=set.union(URL_TOP100_HTTPS, URLS2, SPECIAL_URLS, LIBS_URLS, TOP_100_PL)
 # you observe a site consistently failing in Firefox/Chrome despite
 # being reachable from curl or the Python CLI.
 BROWSER_EXCLUDED = process("""
-# Blocked by Firefox Enhanced Tracking Protection (Meta/Yahoo/Yandex/etc.)
+# Blocked by Firefox Enhanced Tracking Protection (Meta / Yahoo / Yandex / etc.)
+http://facebook.com
 https://www.facebook.com
 https://l.facebook.com
 https://business.facebook.com
+http://yahoo.com
 https://www.yahoo.com
+http://mail.yahoo.com
 https://mail.yahoo.com
+http://finance.yahoo.com
 https://yandex.ru
 https://www.tiktok.com
+http://reddit.com
 https://www.reddit.com
+http://quora.com
+https://www.quora.com
+
+# Tracking / analytics hosts on ETP blocklists
+http://gemius.pl
+
+# Polish portals with strict CSP / blocked opaque responses
+http://wp.pl
+http://finanse.wp.pl
+http://pracuj.pl
+http://t-mobile.pl
+http://lotto.pl
+
+# HSTS-preloaded gov domain — Firefox auto-upgrades the http:// entry and
+# the resulting request is then blocked/failed by the browser (not a
+# real connectivity issue; curl and the Python CLI reach it fine).
+http://nih.gov
 
 # Strict CSP / opaque-response blocking observed in Firefox
 https://www.bing.com
-https://www.quora.com
 https://www.qwant.com
 https://trello.com
 https://music.youtube.com

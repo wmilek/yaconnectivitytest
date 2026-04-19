@@ -284,6 +284,19 @@ export const TOP_100_PL = [
 ];
 
 export const BROWSER_EXCLUDED = [
+  "http://facebook.com",
+  "http://finance.yahoo.com",
+  "http://finanse.wp.pl",
+  "http://gemius.pl",
+  "http://lotto.pl",
+  "http://mail.yahoo.com",
+  "http://nih.gov",
+  "http://pracuj.pl",
+  "http://quora.com",
+  "http://reddit.com",
+  "http://t-mobile.pl",
+  "http://wp.pl",
+  "http://yahoo.com",
   "https://business.facebook.com",
   "https://freshdesk.fxpro.com",
   "https://l.facebook.com",
