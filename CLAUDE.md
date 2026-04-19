@@ -21,7 +21,7 @@ yaconnectivitytest --embedded --limiturl 20 --parallel 12
 yaconnectivitytest --csvfile domains.csv    # CSV rows: "popularity,domain"
 
 # Run without installing (from repo root)
-python yaconnectivtytest.py --embedded
+python yaconnectivitytest.py --embedded
 
 # Sanity check used by CI
 python -c "import connectivity; import database; print('Imports OK')"
@@ -34,7 +34,7 @@ There is no test suite, linter, or formatter configured. CI (`.github/workflows/
 
 Three top-level Python modules, all in the repo root (flat layout, no `src/` or package dir). `pyproject.toml` declares them as `py-modules`, so they are imported unqualified (`import connectivity`, `import database`).
 
-- `yaconnectivtytest.py` — CLI entry point. **Note the filename typo** (`yaconnectivtytest`, missing the second `i`). The `[project.scripts]` entry in `pyproject.toml` maps the command `yaconnectivitytest` → `yaconnectivtytest:main`. Renaming the file requires updating `pyproject.toml` (both `[project.scripts]` and `[tool.setuptools] py-modules`) in lockstep.
+- `yaconnectivitytest.py` — CLI entry point. The `[project.scripts]` entry in `pyproject.toml` maps the command `yaconnectivitytest` → `yaconnectivitytest:main`, and the module is also listed under `[tool.setuptools] py-modules`. Renaming the file requires updating both spots in lockstep.
 - `connectivity.py` — measurement core.
   - `load_url(session, url)` issues a `session.head(url, timeout=30, allow_redirects=False)` and returns a `MeasureResult` (ad-hoc class with attributes assigned dynamically) containing `start_at`, `end_at`, `url`, `result`, and `error`. Only `ConnectionError`, `ReadTimeout`, and `Timeout` are caught — other exceptions propagate and will crash the worker future.
   - `connectivity_test_concurrent(urls, max_workers=6)` drives a `ThreadPoolExecutor` over a shared `requests.Session`, splits results into `successful` / `failed`, and prints the summary (top 5 fastest, top 5 slowest, top 5 nearest the median, failures grouped by URL).
