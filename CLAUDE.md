@@ -1,0 +1,54 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project
+
+Yet Another Connectivity Test (`yaconnectivitytest`) — a concurrent HTTP latency tester. Sends `HEAD` requests to many URLs in parallel via a thread pool and reports fastest / slowest / median response times plus per-error failure summaries. Any HTTP response (including 4xx/5xx) counts as success; the tool measures DNS + connect + first response, not content correctness.
+
+## Commands
+
+```bash
+# Install (editable / from source)
+pip install .
+
+# Install from GitHub
+pip install git+https://github.com/wmilek/yaconnectivitytest.git
+
+# Run via entry point after install
+yaconnectivitytest --embedded
+yaconnectivitytest --embedded --limiturl 20 --parallel 12
+yaconnectivitytest --csvfile domains.csv    # CSV rows: "popularity,domain"
+
+# Run without installing (from repo root)
+python yaconnectivtytest.py --embedded
+
+# Sanity check used by CI
+python -c "import connectivity; import database; print('Imports OK')"
+yaconnectivitytest --help
+```
+
+There is no test suite, linter, or formatter configured. CI (`.github/workflows/ci.yml`) only verifies imports, the CLI entry point, and runs a 3-URL live connectivity test on Python 3.10 and 3.12.
+
+## Architecture
+
+Three top-level Python modules, all in the repo root (flat layout, no `src/` or package dir). `pyproject.toml` declares them as `py-modules`, so they are imported unqualified (`import connectivity`, `import database`).
+
+- `yaconnectivtytest.py` — CLI entry point. **Note the filename typo** (`yaconnectivtytest`, missing the second `i`). The `[project.scripts]` entry in `pyproject.toml` maps the command `yaconnectivitytest` → `yaconnectivtytest:main`. Renaming the file requires updating `pyproject.toml` (both `[project.scripts]` and `[tool.setuptools] py-modules`) in lockstep.
+- `connectivity.py` — measurement core.
+  - `load_url(session, url)` issues a `session.head(url, timeout=30, allow_redirects=False)` and returns a `MeasureResult` (ad-hoc class with attributes assigned dynamically) containing `start_at`, `end_at`, `url`, `result`, and `error`. Only `ConnectionError`, `ReadTimeout`, and `Timeout` are caught — other exceptions propagate and will crash the worker future.
+  - `connectivity_test_concurrent(urls, max_workers=6)` drives a `ThreadPoolExecutor` over a shared `requests.Session`, splits results into `successful` / `failed`, and prints the summary (top 5 fastest, top 5 slowest, top 5 nearest the median, failures grouped by URL).
+- `database.py` — embedded URL corpora as module-level constants. `process()` splits a multiline string and keeps lines starting with `http`. `URLS`, `SPECIAL_URLS`, `LIBS_URLS`, `URL_TOP100_HTTPS`, `TOP_100_PL` are sets; **`URLS2` is a `filter` iterator, not a set** — it is only safe to iterate once. `ALL_URLS = set.union(URL_TOP100_HTTPS, URLS2, SPECIAL_URLS, LIBS_URLS, TOP_100_PL)` materializes the union and happens to consume `URLS2`, so any code importing `URLS2` after `ALL_URLS` is referenced will see an exhausted iterator. Preserve this or fix both sites together.
+
+Control flow: CLI parses args → chooses URL source (CSV parse or `database.ALL_URLS`) → optional `random.sample` down to `--limiturl` → `connectivity.connectivity_test_concurrent` with `max_workers=--parallel` (default 6, chosen to match Firefox's per-host connection cap).
+
+## Conventions
+
+- Python 3.8+ compatibility is required (`pyproject.toml`). Avoid 3.9+-only syntax (e.g. `dict | dict`, `list[str]` at runtime) in module scope.
+- Only runtime dependency is `requests`. Keep it that way unless adding a new capability that genuinely needs more.
+- Embedded URL lists use plain `http://` on purpose for many entries — the tool is testing connectivity behavior (including redirects / captive-portal detection), not enforcing HTTPS. Don't "upgrade" them.
+- Commented-out URLs with a leading `#` inside the `process()` triple-strings are intentionally excluded (the filter keeps only `http`-prefixed lines). Preserve the `#` rather than deleting the line when disabling an entry.
+
+## Development branch
+
+All work for this repository happens on branch `claude/add-claude-documentation-DHRlv` per the session instructions. Create it locally if missing; never push to `main`.
