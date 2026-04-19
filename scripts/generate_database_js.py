@@ -25,6 +25,7 @@ EXPORTED = [
     "LIBS_URLS",
     "URL_TOP100_HTTPS",
     "TOP_100_PL",
+    "BROWSER_EXCLUDED",
 ]
 
 

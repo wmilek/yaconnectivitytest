@@ -7,6 +7,7 @@ const progress = document.getElementById('progress');
 const corpusSel = document.getElementById('corpus');
 const limitInp = document.getElementById('limit');
 const parallelInp = document.getElementById('parallel');
+const skipExcludedInp = document.getElementById('skipExcluded');
 
 function sample(arr, n) {
   const copy = arr.slice();
@@ -77,6 +78,13 @@ runBtn.addEventListener('click', async () => {
   }
 
   let urls = Array.from(urlsSource);
+  let skippedCount = 0;
+  if (skipExcludedInp.checked && db.BROWSER_EXCLUDED) {
+    const excluded = new Set(db.BROWSER_EXCLUDED);
+    const before = urls.length;
+    urls = urls.filter(u => !excluded.has(u));
+    skippedCount = before - urls.length;
+  }
   const limit = parseInt(limitInp.value, 10);
   if (!Number.isNaN(limit) && limit > 0) {
     urls = sample(urls, limit);
@@ -87,7 +95,8 @@ runBtn.addEventListener('click', async () => {
   progress.hidden = false;
   progress.value = 0;
   progress.max = urls.length;
-  output.textContent = `Testing ${urls.length} URLs with ${parallel} parallel workers...\n`;
+  const skipNote = skippedCount ? ` (skipped ${skippedCount} browser-excluded URLs)` : '';
+  output.textContent = `Testing ${urls.length} URLs with ${parallel} parallel workers${skipNote}...\n`;
 
   const t0 = performance.now();
   try {

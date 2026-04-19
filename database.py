@@ -399,3 +399,30 @@ http://doz.pl
 """)
 
 ALL_URLS=set.union(URL_TOP100_HTTPS, URLS2, SPECIAL_URLS, LIBS_URLS, TOP_100_PL)
+
+# URLs known to fail in browsers for browser-specific reasons (Enhanced
+# Tracking Protection, strict CSP, opaque-response blocking, etc.) rather
+# than actual connectivity problems. The CLI still tests them; the web
+# frontend lets users skip them via a checkbox. Extend this list when
+# you observe a site consistently failing in Firefox/Chrome despite
+# being reachable from curl or the Python CLI.
+BROWSER_EXCLUDED = process("""
+# Blocked by Firefox Enhanced Tracking Protection (Meta/Yahoo/Yandex/etc.)
+https://www.facebook.com
+https://l.facebook.com
+https://business.facebook.com
+https://www.yahoo.com
+https://mail.yahoo.com
+https://yandex.ru
+https://www.tiktok.com
+https://www.reddit.com
+
+# Strict CSP / opaque-response blocking observed in Firefox
+https://www.bing.com
+https://www.quora.com
+https://www.qwant.com
+https://trello.com
+https://music.youtube.com
+https://marketplace.axieinfinity.com
+https://freshdesk.fxpro.com
+""")

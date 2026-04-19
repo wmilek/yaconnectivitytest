@@ -283,6 +283,24 @@ export const TOP_100_PL = [
   "http://zalando.pl"
 ];
 
+export const BROWSER_EXCLUDED = [
+  "https://business.facebook.com",
+  "https://freshdesk.fxpro.com",
+  "https://l.facebook.com",
+  "https://mail.yahoo.com",
+  "https://marketplace.axieinfinity.com",
+  "https://music.youtube.com",
+  "https://trello.com",
+  "https://www.bing.com",
+  "https://www.facebook.com",
+  "https://www.quora.com",
+  "https://www.qwant.com",
+  "https://www.reddit.com",
+  "https://www.tiktok.com",
+  "https://www.yahoo.com",
+  "https://yandex.ru"
+];
+
 export const ALL_URLS = [
   "http://abczdrowie.pl",
   "http://adobe.com",
