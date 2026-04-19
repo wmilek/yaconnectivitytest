@@ -2,6 +2,20 @@
 
 Yet Another Connectivity Test - a concurrent HTTP latency tester. Measures DNS resolution and HTTP connection times across many URLs in parallel, helping you evaluate your network environment.
 
+Available as a Python CLI and as a browser-based test page.
+
+## Browser version
+
+[**http://yaconnectivitytest.surge.sh**](http://yaconnectivitytest.surge.sh)
+
+The same test running entirely in your browser — no install, no Python. Pick a corpus, click **Run test**, and get the same fastest / slowest / median breakdown. Output includes a self-contained header (run time, page URL, user agent, parameters) so you can copy/paste a full, reproducible report.
+
+Notes:
+
+- The page is deliberately served over **HTTP** (not HTTPS). Browsers won't make requests from an `https://` page to `http://` URLs (mixed-content rule), and most of the embedded corpus is `http://` on purpose. If your browser auto-upgrades the URL, disable HTTPS-Only Mode for this site.
+- Requests use `mode: 'no-cors'`, so responses are opaque — the browser measures round-trip time but can't read status codes (same liberal "any response = success" rule as the CLI).
+- Some URLs (Meta, Yahoo, Yandex, TikTok, Reddit, Quora, etc.) are blocked by Firefox Enhanced Tracking Protection or strict site CSP rather than by real connectivity problems. A **"Skip URLs known to fail in browsers"** checkbox (on by default) removes them from the run. The CLI tests them normally.
+
 ## Install
 
 ```bash
@@ -64,8 +78,10 @@ The tool includes several built-in URL sets:
 | URL_TOP100_HTTPS | ~100 | Top global HTTPS sites |
 | TOP_100_PL | ~100 | Top Polish websites |
 | ALL_URLS | ~330 | Union of all the above |
+| BROWSER_EXCLUDED | ~28 | URLs skipped by the web frontend (browser-only blockers: ETP, strict CSP, etc.). CLI ignores this list. |
 
 ## Requirements
 
 - Python 3.8+
 - `requests`
+

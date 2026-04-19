@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yet Another Connectivity Test (web)</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.45;
+    }
+    h1 { margin-bottom: 0.25rem; }
+    .sub { color: #666; margin-top: 0; }
+    fieldset { margin: 1rem 0; border: 1px solid #ccc; border-radius: 4px; }
+    fieldset legend { padding: 0 0.5rem; font-weight: 600; }
+    label { display: inline-block; margin: 0.25rem 1rem 0.25rem 0; }
+    input[type="number"] { width: 5rem; padding: 0.25rem; }
+    select { padding: 0.25rem; }
+    button {
+      font: inherit;
+      padding: 0.5rem 1.25rem;
+      background: #0969da;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    progress { width: 100%; margin: 0.5rem 0; height: 1rem; }
+    pre {
+      background: #f6f8fa;
+      padding: 1rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .warn {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      border-radius: 0 4px 4px 0;
+    }
+    .warn ul { margin: 0.25rem 0 0 1rem; padding: 0; }
+    code { background: rgba(0,0,0,0.06); padding: 0 0.25rem; border-radius: 3px; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #0d1117; color: #e6edf3; }
+      .sub { color: #8b949e; }
+      fieldset { border-color: #30363d; }
+      pre { background: #161b22; }
+      .warn { background: #3d2f00; border-left-color: #d29922; }
+      code { background: rgba(255,255,255,0.1); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Yet Another Connectivity Test</h1>
+  <p class="sub">Browser version. Measures HEAD-request round-trip time to many URLs in parallel.</p>
+
+  <div class="warn">
+    <strong>Browser caveats:</strong>
+    <ul>
+      <li>If this page is served over <code>https://</code>, mixed-content rules block requests to <code>http://</code> URLs. Serve over <code>http://</code> to exercise the full corpus.</li>
+      <li>Requests use <code>mode: 'no-cors'</code> — responses are opaque, so we time round-trips but can't read status codes.</li>
+      <li>Browser-level CORS/DNS failures are all reported as <code>NetworkError</code>; aborts as <code>Timeout</code>.</li>
+    </ul>
+  </div>
+
+  <fieldset>
+    <legend>Options</legend>
+    <label>Corpus:
+      <select id="corpus">
+        <option value="ALL_URLS" selected>ALL_URLS (~330)</option>
+        <option value="URL_TOP100_HTTPS">URL_TOP100_HTTPS</option>
+        <option value="TOP_100_PL">TOP_100_PL</option>
+        <option value="URLS">URLS</option>
+        <option value="SPECIAL_URLS">SPECIAL_URLS</option>
+        <option value="LIBS_URLS">LIBS_URLS</option>
+      </select>
+    </label>
+    <label>Limit (random sample):
+      <input id="limit" type="number" min="1" placeholder="all">
+    </label>
+    <label>Parallel workers:
+      <input id="parallel" type="number" min="1" value="6">
+    </label>
+    <br>
+    <label>
+      <input id="skipExcluded" type="checkbox" checked>
+      Skip URLs known to fail in browsers (ETP / strict CSP)
+    </label>
+  </fieldset>
+
+  <button id="run">Run test</button>
+  <progress id="progress" value="0" max="1" hidden></progress>
+  <pre id="output">Click "Run test" to start.</pre>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
