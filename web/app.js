@@ -30,16 +30,28 @@ function renderTop(label, rows) {
   return lines.join('\n');
 }
 
-function render(summary, elapsed) {
+function render(summary, elapsed, params) {
   const out = [];
-  out.push(`Page scheme: ${location.protocol}//${location.host}`);
+  out.push('=== yaconnectivitytest (web) ===');
+  out.push(`Run at:            ${new Date().toISOString()}`);
+  out.push(`Page:              ${location.protocol}//${location.host}${location.pathname}`);
+  out.push(`User agent:        ${navigator.userAgent}`);
+  out.push('');
+  out.push('Parameters:');
+  out.push(`  Corpus:          ${params.corpus} (${params.corpusSize} URLs)`);
+  out.push(`  Limit:           ${params.limit ? params.limit + ' (random sample)' : 'none (all after filtering)'}`);
+  out.push(`  Parallel:        ${params.parallel} workers`);
+  out.push(
+    `  Skip excluded:   ${params.skipExcluded ? `yes (${params.skippedCount} URLs from BROWSER_EXCLUDED removed)` : 'no'}`,
+  );
+  out.push('');
   if (location.protocol === 'https:') {
     out.push(
       'WARNING: page is loaded over https: — mixed-content rules will block every http:// URL.',
     );
     out.push('Re-open as http://' + location.host + '/ (and disable Firefox HTTPS-Only Mode for this site).');
+    out.push('');
   }
-  out.push('');
   out.push(`=== Summary (elapsed: ${elapsed.toFixed(2)}s) ===`);
   out.push(
     `Tested: ${summary.total} | Successful: ${summary.successful.length} | Failed: ${summary.failed.length}`,
@@ -78,18 +90,22 @@ runBtn.addEventListener('click', async () => {
   }
 
   let urls = Array.from(urlsSource);
+  const corpusSize = urls.length;
   let skippedCount = 0;
-  if (skipExcludedInp.checked && db.BROWSER_EXCLUDED) {
+  const skipExcluded = skipExcludedInp.checked && !!db.BROWSER_EXCLUDED;
+  if (skipExcluded) {
     const excluded = new Set(db.BROWSER_EXCLUDED);
     const before = urls.length;
     urls = urls.filter(u => !excluded.has(u));
     skippedCount = before - urls.length;
   }
-  const limit = parseInt(limitInp.value, 10);
-  if (!Number.isNaN(limit) && limit > 0) {
+  const limitRaw = parseInt(limitInp.value, 10);
+  const limit = (!Number.isNaN(limitRaw) && limitRaw > 0) ? limitRaw : null;
+  if (limit) {
     urls = sample(urls, limit);
   }
   const parallel = parseInt(parallelInp.value, 10) || 6;
+  const params = { corpus, corpusSize, limit, parallel, skipExcluded, skippedCount };
 
   runBtn.disabled = true;
   progress.hidden = false;
@@ -107,7 +123,7 @@ runBtn.addEventListener('click', async () => {
       },
     });
     const elapsed = (performance.now() - t0) / 1000;
-    output.textContent = render(summary, elapsed);
+    output.textContent = render(summary, elapsed, params);
   } catch (e) {
     output.textContent = `Error: ${e.message}\n${e.stack || ''}`;
   } finally {
