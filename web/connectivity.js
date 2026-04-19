@@ -16,7 +16,6 @@ export async function loadUrl(url, timeoutMs = DEFAULT_TIMEOUT_MS) {
     await fetch(url, {
       method: 'HEAD',
       mode: 'no-cors',
-      redirect: 'manual',
       cache: 'no-store',
       signal: controller.signal,
     });
