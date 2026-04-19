@@ -2,9 +2,7 @@ name: Deploy web to Surge
 
 on:
   push:
-    branches:
-      - main
-      - claude/web-prototype
+    branches: [main]
     paths:
       - 'web/**'
       - 'database.py'
