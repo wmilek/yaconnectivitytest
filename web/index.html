@@ -19,6 +19,7 @@
     fieldset legend { padding: 0 0.5rem; font-weight: 600; }
     label { display: inline-block; margin: 0.25rem 1rem 0.25rem 0; }
     input[type="number"] { width: 5rem; padding: 0.25rem; }
+    input[type="text"] { padding: 0.25rem; min-width: 18rem; max-width: 100%; }
     select { padding: 0.25rem; }
     button {
       font: inherit;
@@ -100,6 +101,27 @@
   <progress id="progress" value="0" max="1" hidden></progress>
   <pre id="output">Click "Run test" to start.</pre>
 
+  <fieldset>
+    <legend>Send report (MQTT)</legend>
+    <p class="sub" style="margin: 0.25rem 0;">
+      Publishes the rendered output above to an MQTT topic over WebSockets. Anyone subscribed to the topic on this broker will see the report. Default broker is the public <code>test.mosquitto.org</code> — for privacy use a unique topic.
+    </p>
+    <label>Broker (WSS URL):
+      <input id="mqttBroker" type="text" value="wss://test.mosquitto.org:8081/mqtt">
+    </label>
+    <br>
+    <label>Topic:
+      <input id="mqttTopic" type="text" value="yaconnectivitytest/reports">
+    </label>
+    <label>Notes (optional):
+      <input id="reportNotes" type="text" placeholder="e.g. home WiFi 5 GHz">
+    </label>
+    <br>
+    <button id="sendReport" disabled>Send report</button>
+    <span id="sendStatus" class="sub"></span>
+  </fieldset>
+
+  <script src="https://cdn.jsdelivr.net/npm/mqtt@5/dist/mqtt.min.js"></script>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

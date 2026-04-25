@@ -51,6 +51,7 @@ A browser port of the same test, deployed to `yaconnectivitytest.surge.sh` on pu
 - `web/CNAME` — pins the Surge domain. Changing the deploy target means editing this file.
 - `.github/workflows/deploy-web.yml` — regenerates `web/database.js` then runs `npx surge ./web`. Requires repo secrets `SURGE_LOGIN` (account email) and `SURGE_TOKEN` (from `surge token`).
 - Mixed-content rule: the site **must be served over `http://`** for the browser to reach the `http://` entries in the corpus. Surge's free `*.surge.sh` subdomain is HTTP-reachable (no HSTS); that's why we're not on GitHub Pages / Netlify / Vercel, all of which force HTTPS.
+- Report submission: a "Send report" button in the UI publishes the rendered output text to an MQTT broker over WebSockets via `mqtt.js` (loaded from jsDelivr CDN as a global `window.mqtt`). Defaults to `wss://test.mosquitto.org:8081/mqtt` and topic `yaconnectivitytest/reports`. Broker URL and topic are persisted in `localStorage` under the `yaconn-mqtt-` prefix. WSS works from the HTTP-served page (HTTP page → HTTPS/WSS resource is allowed; only the reverse direction is blocked).
 
 ## Conventions
 

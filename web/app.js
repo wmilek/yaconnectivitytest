@@ -8,6 +8,20 @@ const corpusSel = document.getElementById('corpus');
 const limitInp = document.getElementById('limit');
 const parallelInp = document.getElementById('parallel');
 const skipExcludedInp = document.getElementById('skipExcluded');
+const sendBtn = document.getElementById('sendReport');
+const sendStatus = document.getElementById('sendStatus');
+const mqttBrokerInp = document.getElementById('mqttBroker');
+const mqttTopicInp = document.getElementById('mqttTopic');
+const reportNotesInp = document.getElementById('reportNotes');
+
+let lastReport = null;
+
+const STORAGE_PREFIX = 'yaconn-mqtt-';
+for (const [el, key] of [[mqttBrokerInp, 'broker'], [mqttTopicInp, 'topic']]) {
+  const saved = localStorage.getItem(STORAGE_PREFIX + key);
+  if (saved) el.value = saved;
+  el.addEventListener('change', () => localStorage.setItem(STORAGE_PREFIX + key, el.value));
+}
 
 function sample(arr, n) {
   const copy = arr.slice();
@@ -123,10 +137,61 @@ runBtn.addEventListener('click', async () => {
       },
     });
     const elapsed = (performance.now() - t0) / 1000;
-    output.textContent = render(summary, elapsed, params);
+    const text = render(summary, elapsed, params);
+    output.textContent = text;
+    lastReport = { text, summary, elapsed, params };
+    sendBtn.disabled = false;
+    sendStatus.textContent = '';
   } catch (e) {
     output.textContent = `Error: ${e.message}\n${e.stack || ''}`;
   } finally {
     runBtn.disabled = false;
   }
+});
+
+sendBtn.addEventListener('click', async () => {
+  if (!lastReport) return;
+  if (typeof mqtt === 'undefined') {
+    sendStatus.textContent = 'mqtt.js failed to load (CDN blocked?)';
+    return;
+  }
+  const broker = mqttBrokerInp.value.trim();
+  const topic = mqttTopicInp.value.trim();
+  const notes = reportNotesInp.value.trim();
+  if (!broker || !topic) {
+    sendStatus.textContent = 'Broker and topic are required.';
+    return;
+  }
+
+  const payload = notes
+    ? `Notes: ${notes}\n\n${lastReport.text}`
+    : lastReport.text;
+
+  sendBtn.disabled = true;
+  sendStatus.textContent = `Connecting to ${broker}...`;
+
+  const client = mqtt.connect(broker, {
+    connectTimeout: 10000,
+    reconnectPeriod: 0,
+    clientId: 'yaconn-' + Math.random().toString(16).slice(2, 10),
+  });
+
+  let done = false;
+  const finish = (msg, ok) => {
+    if (done) return;
+    done = true;
+    sendStatus.textContent = msg;
+    sendBtn.disabled = false;
+    try { client.end(true); } catch {}
+  };
+
+  client.on('connect', () => {
+    sendStatus.textContent = `Publishing to ${topic}...`;
+    client.publish(topic, payload, { qos: 1 }, (err) => {
+      if (err) finish('Publish failed: ' + err.message, false);
+      else finish(`Sent (${payload.length} bytes) to ${topic} on ${broker}`, true);
+    });
+  });
+  client.on('error', (e) => finish('Connection error: ' + e.message, false));
+  setTimeout(() => finish('Timed out after 15s', false), 15000);
 });

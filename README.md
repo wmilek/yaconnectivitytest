@@ -16,6 +16,18 @@ Notes:
 - Requests use `mode: 'no-cors'`, so responses are opaque — the browser measures round-trip time but can't read status codes (same liberal "any response = success" rule as the CLI).
 - Some URLs (Meta, Yahoo, Yandex, TikTok, Reddit, Quora, etc.) are blocked by Firefox Enhanced Tracking Protection or strict site CSP rather than by real connectivity problems. A **"Skip URLs known to fail in browsers"** checkbox (on by default) removes them from the run. The CLI tests them normally.
 
+### Sending reports
+
+After a run, you can publish the rendered output to an MQTT topic via WebSockets. Defaults: broker `wss://test.mosquitto.org:8081/mqtt`, topic `yaconnectivitytest/reports`. Both are public — change the topic to something unique if you want privacy.
+
+Subscribe with any MQTT client, for example:
+
+```bash
+mosquitto_sub -h test.mosquitto.org -t yaconnectivitytest/reports -v
+```
+
+(Or use MQTT Explorer / IoT MQTT Panel on mobile.)
+
 ## Install
 
 ```bash
